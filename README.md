@@ -139,6 +139,14 @@ The app can work with either the latest in-memory sentiment result produced duri
 
 Related files include `input/sentiment_enriched.xlsx`, which acts as the optional fallback dataset for the dashboard and Ask Agent, and `input/product_summaries.json`, which stores cached AI-generated summaries for Analytics filters.
 
+## How to Change the Dataset
+
+When you want to switch the application to a different review dataset, the first step is to prepare the new input file for the **Sentiment Analysis** page. The uploaded Excel file can include any number of business columns, but it must contain three required columns: `review_id`, `review_title`, and `review_text`. The `review_id` field is the unique row identifier used to merge the generated sentiment output back into the original table, `review_title` is the short review headline, and `review_text` is the main body of the review that the model reads to assign overall sentiment and aspect-level evidence.
+
+After preparing the new review file, run sentiment analysis from the **Sentiment Analysis** page to generate a new enriched sentiment dataset. When that run is complete, save or download the resulting enriched file and place it in the `input` folder as `sentiment_enriched.xlsx`, replacing the current file at `input/sentiment_enriched.xlsx`. The dashboard, benchmark views, review explorer, summaries, and Ask Agent will then use this new sentiment dataset as their saved fallback input.
+
+If summaries were previously generated for the older dataset, you should also clear the cached summary file at `input/product_summaries.json` before using the new data extensively. That file stores previously generated summary text for filters and groups, so keeping old cache entries can cause outdated summaries to appear even after the dataset changes. Clearing the file contents or deleting and recreating the file ensures that new summaries are generated from the new sentiment dataset instead of the old one.
+
 ## How to Run and Save Sentiment Analysis
 
 The first step is to collect product reviews from the sources your team already uses. These may come from web scrapers, marketplace exports, retailer portals, third-party review services, internal review programs, or Amazon APIs. Before running sentiment analysis, these reviews should be combined into a single Excel table.
@@ -216,7 +224,7 @@ Ask Agent uses the following built-in tools to answer questions against the load
 | `search_review_text` | Searches review title and text content for keywords or phrases. |
 | `get_top_keywords` | Returns the most frequent keywords in the filtered review set after stop-word filtering. |
 | `get_aspect_cooccurrence` | Identifies aspects that appear together in the same reviews. |
-| `run_pandas_code` | Executes a sandboxed custom pandas snippet for advanced analysis not covered by the other tools. |
+| `run_pandas_code` | For analysis cases not covered by the existing tools, the agent generates the analysis code which is run by the `run_pandas_code` tool. |
 
 ### Sentiment Analysis
 
@@ -224,10 +232,6 @@ The **Sentiment Analysis** page is the operational entry point for processing re
 
 This page is where the raw review table becomes the analysis-ready dataset used everywhere else in the tool. In practice, it is the first page used when new review data is introduced and the page revisited whenever the dataset needs to be refreshed.
 
-### Documentation
 
-The **Documentation** page provides in-app guidance for the full workflow, from preparing review input data through using the analysis pages. It exists so that business users can understand what each page is for, how the workflow fits together, and how to interpret the outputs without depending on technical setup notes.
-
-It is best treated as the reference page for new users or for teams that want a shared explanation of what the application is doing at each stage of the workflow.
 
 
