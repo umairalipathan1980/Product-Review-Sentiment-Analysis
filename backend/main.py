@@ -27,7 +27,7 @@ DEFAULT_OUTPUT_DIR = ROOT / "input"
 DEFAULT_SENTIMENT_INPUT_FILE = DEFAULT_OUTPUT_DIR / "unified_reviews_input.xlsx"
 SETTINGS_FILE = ROOT / "settings.json"
 
-app = FastAPI(title="Fiskars Sentiment Backend")
+app = FastAPI(title="Product Review Sentiment Backend")
 
 app.add_middleware(
     CORSMiddleware,
@@ -63,7 +63,7 @@ class ChartInterpretRequest(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "Fiskars sentiment backend is running", "status": "healthy"}
+    return {"message": "Product review sentiment backend is running", "status": "healthy"}
 
 
 @app.get("/test")
@@ -464,6 +464,7 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
 

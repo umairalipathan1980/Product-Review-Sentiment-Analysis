@@ -139,14 +139,6 @@ The app can work with either the latest in-memory sentiment result produced duri
 
 Related files include `input/sentiment_enriched.xlsx`, which acts as the optional fallback dataset for the dashboard and Ask Agent, and `input/product_summaries.json`, which stores cached AI-generated summaries for Analytics filters.
 
-## Tool Guide
-
-This tool turns raw product review data into a structured sentiment dataset that business teams can explore through interactive analytics, aspect benchmarking, row-level review inspection, and natural-language questioning. The workflow is designed for business users who need to move from raw reviews to actionable signals without building a separate reporting pipeline for every new question.
-
-The core output of the tool is an enriched review file where the original review rows are preserved and augmented with language detection, review-level sentiment, and structured aspect-level evidence. That enriched output then powers every analysis page in the application.
-
-The tool is built to support a business workflow that moves from one review file to several different kinds of insight. It starts from a single uploaded review dataset, allows the same data to be sliced across multiple business dimensions such as country, source, product, model, generation, or region, and keeps the connection back to the original customer language so charts and summaries can always be checked against supporting review evidence.
-
 ## How to Run and Save Sentiment Analysis
 
 The first step is to collect product reviews from the sources your team already uses. These may come from web scrapers, marketplace exports, retailer portals, third-party review services, internal review programs, or Amazon APIs. Before running sentiment analysis, these reviews should be combined into a single Excel table.
@@ -157,7 +149,20 @@ Once the file is ready, the user opens the **Sentiment Analysis** page, selects 
 
 A key part of the sentiment pipeline is the aspect taxonomy defined in `backend/sentiment_prompts.py`. In that file, the `class AspectType` enum defines the allowed aspect categories that the model can use when assigning aspect-level sentiment. This means the model does not invent arbitrary aspect names. Instead, it must choose from the predefined closed set used by the application. The same file also contains `ASPECT_DESCRIPTIONS`, which explains what each aspect category is intended to cover.
 
-The current aspect types are `SOUND_QUALITY`, `NOISE_CANCELLATION`, `COMFORT_FIT`, `BATTERY_LIFE`, `BUILD_DURABILITY`, `CONNECTIVITY`, `MICROPHONE_QUALITY`, `USE_CASE`, `PRICE_VALUE`, and `BRAND_TRUST`. Their definitions are: `SOUND_QUALITY` for general audio performance, bass, treble, clarity, and soundstage; `NOISE_CANCELLATION` for active noise cancellation effectiveness, ambient noise blocking, and transparency mode; `COMFORT_FIT` for wearing comfort, ear cup pressure, fit stability, and long-session fatigue; `BATTERY_LIFE` for battery duration, charging speed, standby drain, and battery longevity over time; `BUILD_DURABILITY` for construction, materials, hinge strength, durability, and craftsmanship; `CONNECTIVITY` for Bluetooth stability, pairing speed, multipoint support, range, and audio dropouts; `MICROPHONE_QUALITY` for call clarity, voice pickup, background noise rejection, and video call performance; `USE_CASE` for specific usage situations such as commuting, gym, travel, or gaming; `PRICE_VALUE` for price, value for money, and whether the product feels worth the cost; and `BRAND_TRUST` for brand reputation and expected quality.
+The aspect types in the example dataset are defined as follows.
+
+| Aspect Type | Definition |
+| --- | --- |
+| `SOUND_QUALITY` | General audio performance, bass, treble, clarity, and soundstage. |
+| `NOISE_CANCELLATION` | Active noise cancellation effectiveness, ambient noise blocking, and transparency mode. |
+| `COMFORT_FIT` | Wearing comfort, ear cup pressure, fit stability, and long-session fatigue. |
+| `BATTERY_LIFE` | Battery duration, charging speed, standby drain, and battery longevity over time. |
+| `BUILD_DURABILITY` | Construction, materials, hinge strength, durability, and craftsmanship. |
+| `CONNECTIVITY` | Bluetooth stability, pairing speed, multipoint support, range, and audio dropouts. |
+| `MICROPHONE_QUALITY` | Call clarity, voice pickup, background noise rejection, and video call performance. |
+| `USE_CASE` | Specific usage situations such as commuting, gym, travel, or gaming. |
+| `PRICE_VALUE` | Price, value for money, and whether the product feels worth the cost. |
+| `BRAND_TRUST` | Brand reputation and expected quality. |
 
 In practice, each extracted aspect written into `aspects_json` is expected to use one of those `AspectType` values, along with an aspect-level sentiment label, a supporting evidence quote from the review text, and a confidence score. This keeps aspect-level analysis consistent across the dashboard, benchmark views, summaries, and Ask Agent.
 
@@ -193,6 +198,26 @@ The **Ask Agent** page is designed for natural-language exploration of the curre
 
 The answers are grounded in the currently loaded sentiment-enriched dataset rather than in generic product knowledge. This makes the page useful for follow-up analysis after reviewing the dashboard. If no current sentiment dataset is available, the page clearly reports that no input data is found.
 
+Ask Agent uses the following built-in tools to answer questions against the loaded dataset.
+
+| Tool | What It Does |
+| --- | --- |
+| `get_schema` | Returns the dataset schema, supported filter fields, groupable fields, metrics, and sample values. |
+| `get_aspect_summary` | Summarizes aspect mention counts and sentiment breakdowns, optionally within filters or a sentiment slice. |
+| `aggregate_reviews` | Computes grouped metrics such as review count, average rating, and sentiment rates. |
+| `find_reviews` | Retrieves individual review rows when the user asks for examples, evidence, or quotes. |
+| `explain_negative_drivers` | Identifies the aspects most associated with negative sentiment for a selected product or source. |
+| `get_time_trends` | Shows how ratings or sentiment change over time, optionally for a specific aspect. |
+| `compare_segments` | Compares metrics side by side across selected values of one dimension such as source, country, or product. |
+| `detect_anomalies` | Flags statistical outliers in a dimension based on metrics such as negative rate or average rating. |
+| `explain_sentiment_drivers` | Finds the top aspects associated with positive, negative, or neutral sentiment. |
+| `statistical_comparison` | Tests whether two filtered groups differ significantly on a selected metric. |
+| `analyze_correlations` | Finds which dimensions are most strongly associated with a target metric. |
+| `search_review_text` | Searches review title and text content for keywords or phrases. |
+| `get_top_keywords` | Returns the most frequent keywords in the filtered review set after stop-word filtering. |
+| `get_aspect_cooccurrence` | Identifies aspects that appear together in the same reviews. |
+| `run_pandas_code` | Executes a sandboxed custom pandas snippet for advanced analysis not covered by the other tools. |
+
 ### Sentiment Analysis
 
 The **Sentiment Analysis** page is the operational entry point for processing review data. It allows users to select the API provider, upload a review file, run the sentiment pipeline, preview the resulting enriched table, and download the saved output.
@@ -204,4 +229,5 @@ This page is where the raw review table becomes the analysis-ready dataset used 
 The **Documentation** page provides in-app guidance for the full workflow, from preparing review input data through using the analysis pages. It exists so that business users can understand what each page is for, how the workflow fits together, and how to interpret the outputs without depending on technical setup notes.
 
 It is best treated as the reference page for new users or for teams that want a shared explanation of what the application is doing at each stage of the workflow.
+
 

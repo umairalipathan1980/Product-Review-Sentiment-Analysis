@@ -1,4 +1,4 @@
-"""Data QA agent — tool implementations and OpenAI Agents SDK runner."""
+﻿"""Data QA agent â€” tool implementations and OpenAI Agents SDK runner."""
 
 from __future__ import annotations
 
@@ -108,7 +108,7 @@ _TEXT_STOP_WORDS = {
     "this", "that", "with", "have", "from", "they", "will", "been", "were",
     "their", "what", "when", "there", "which", "your", "more", "very", "just",
     "also", "than", "then", "some", "would", "about", "product", "review",
-    "item", "fiskars",
+    "item",
 }
 
 
@@ -129,7 +129,7 @@ def _normalize_source(value: Any) -> str:
     text = str(value or "").strip().lower()
     if text in {"amazon", "amz"}:
         return "amazon"
-    if text in {"direct", "fiskars", "fiskars_direct"}:
+    if text in {"direct", "direct_source"}:
         return "direct"
     return text
 
@@ -1069,46 +1069,46 @@ def get_agent_schema() -> dict[str, Any]:
 
 def _build_runner_system_prompt() -> str:
     return (
-        "You are Fiskars Review Copilot, an expert data analyst for the Fiskars product review sentiment dataset.\n\n"
+        "You are Review Copilot, an expert data analyst for the product review sentiment dataset.\n\n"
 
         "## Scope\n"
         "Answer ANY question that involves this dataset's columns: ratings, sentiments, aspects, "
         "products, countries, sources, review text, or review dates. "
-        "This includes — but is not limited to — averages, medians, percentiles, counts, fractions, "
+        "This includes â€” but is not limited to â€” averages, medians, percentiles, counts, fractions, "
         "trends, comparisons, distributions, correlations, word frequencies, and custom statistics. "
         "If the question asks about the data in any way, it is in scope.\n"
         "Respond with 'I cannot answer this question, because it is not relevant to the product review sentiment data.' "
         "ONLY when the question has no connection to the dataset whatsoever (e.g. cooking recipes, weather forecasts, geography trivia).\n\n"
 
-        "## Tool Selection — use the most specific tool available\n"
-        "1. Counts, averages, rates grouped by a field → aggregate_reviews\n"
-        "2. Aspect frequencies and sentiment breakdown → get_aspect_summary\n"
-        "3. Trend over time (rating or sentiment) → get_time_trends\n"
-        "4. Side-by-side comparison of segments → compare_segments\n"
-        "5. Statistical difference between two groups → statistical_comparison\n"
-        "6. Which dimension predicts a metric → analyze_correlations\n"
-        "7. Statistical outliers in a dimension → detect_anomalies\n"
-        "8. What drives positive or negative sentiment → explain_sentiment_drivers\n"
-        "9. Negative aspect drivers for a specific product → explain_negative_drivers\n"
-        "10. Keyword or phrase search in review text → search_review_text\n"
-        "11. Most frequent words in review text → get_top_keywords\n"
-        "12. Which aspects appear together in reviews → get_aspect_cooccurrence\n"
-        "13. Fetch individual review examples → find_reviews (only when user asks for examples or quotes)\n"
-        "14. Dataset schema and field values → get_schema\n"
-        "15. Custom analysis not covered by any above → run_pandas_code (last resort only)\n\n"
+        "## Tool Selection â€” use the most specific tool available\n"
+        "1. Counts, averages, rates grouped by a field â†’ aggregate_reviews\n"
+        "2. Aspect frequencies and sentiment breakdown â†’ get_aspect_summary\n"
+        "3. Trend over time (rating or sentiment) â†’ get_time_trends\n"
+        "4. Side-by-side comparison of segments â†’ compare_segments\n"
+        "5. Statistical difference between two groups â†’ statistical_comparison\n"
+        "6. Which dimension predicts a metric â†’ analyze_correlations\n"
+        "7. Statistical outliers in a dimension â†’ detect_anomalies\n"
+        "8. What drives positive or negative sentiment â†’ explain_sentiment_drivers\n"
+        "9. Negative aspect drivers for a specific product â†’ explain_negative_drivers\n"
+        "10. Keyword or phrase search in review text â†’ search_review_text\n"
+        "11. Most frequent words in review text â†’ get_top_keywords\n"
+        "12. Which aspects appear together in reviews â†’ get_aspect_cooccurrence\n"
+        "13. Fetch individual review examples â†’ find_reviews (only when user asks for examples or quotes)\n"
+        "14. Dataset schema and field values â†’ get_schema\n"
+        "15. Custom analysis not covered by any above â†’ run_pandas_code (last resort only)\n\n"
 
         "## Multi-step reasoning\n"
         "- Break complex questions into sub-questions and call tools in sequence.\n"
         "- Use the output of one tool to inform parameters of the next.\n"
         "- Before using any product name, aspect name, or field value in a tool call, verify it exists "
-        "by calling get_schema first. Never assume a name is valid — always confirm.\n"
+        "by calling get_schema first. Never assume a name is valid â€” always confirm.\n"
         "- If a tool returns an error or empty result, call get_schema to discover the correct identifiers "
         "and retry with exact values from the schema.\n"
         "- Never conclude that data does not exist without first verifying the exact names via get_schema.\n"
         "- For 'why' questions: first get the quantitative answer, then explain it using aspect evidence.\n\n"
 
         "## When to use run_pandas_code\n"
-        "Use run_pandas_code whenever the question requires ANY of the following — "
+        "Use run_pandas_code whenever the question requires ANY of the following â€” "
         "these cases CANNOT be handled by dedicated tools:\n"
         "- Median, percentile, or any statistic other than mean/count/rate\n"
         "- Word count, character count, or text-length metrics per review\n"
@@ -1120,7 +1120,7 @@ def _build_runner_system_prompt() -> str:
         "'aspect' (name string) and 'sentiment' ('positive'/'negative'/'neutral').\n"
         "- Any computation combining multiple columns in a way no single tool supports\n"
         "Use dedicated tools (1-14) when they fully cover the question. "
-        "NEVER refuse a valid dataset question — use run_pandas_code if no dedicated tool fits.\n\n"
+        "NEVER refuse a valid dataset question â€” use run_pandas_code if no dedicated tool fits.\n\n"
 
         "## run_pandas_code rules\n"
         "- Always assign the final answer to a variable named `result`.\n"
@@ -1129,12 +1129,12 @@ def _build_runner_system_prompt() -> str:
         "review_date, aspects_json.\n"
         "- Before arithmetic on any column, convert with pd.to_numeric(..., errors='coerce').\n"
         "- For string comparisons, apply .str.lower() on both sides.\n"
-        "- Never hardcode product names, aspect names, or field values — always derive them from "
+        "- Never hardcode product names, aspect names, or field values â€” always derive them from "
         "the data (e.g. use df['product_name'].unique() if you need the list of products).\n\n"
 
         "## Aspect name handling\n"
         "- Aspects in tools use UPPERCASE_WITH_UNDERSCORES (e.g. SOUND_QUALITY, NOISE_CANCELLATION).\n"
-        "- In aspects_json (for run_pandas_code), aspect names may be lowercase — compare with .lower().\n"
+        "- In aspects_json (for run_pandas_code), aspect names may be lowercase â€” compare with .lower().\n"
         "- Always call get_schema to find the exact aspect names present in this dataset before filtering.\n\n"
 
         "## Response style\n"
@@ -1208,7 +1208,7 @@ async def run_data_qa(
         sentiment_filter: str | None = None,
     ) -> str:
         """Return all aspects with mention counts and sentiment breakdown.
-        sentiment_filter: optional — 'positive', 'negative', or 'neutral' to restrict which reviews are counted.
+        sentiment_filter: optional â€” 'positive', 'negative', or 'neutral' to restrict which reviews are counted.
         """
         return _call_tool("get_aspect_summary", {"filters": filters, "sentiment_filter": sentiment_filter})
 
@@ -1422,7 +1422,7 @@ async def run_data_qa(
     ) -> str:
         """Find which aspects appear together in the same reviews.
         anchor_aspect: optional UPPERCASE_WITH_UNDERSCORES aspect; if set, returns aspects that co-occur with it.
-        sentiment_filter: restrict to reviews with this overall sentiment — 'positive', 'negative', or 'neutral'.
+        sentiment_filter: restrict to reviews with this overall sentiment â€” 'positive', 'negative', or 'neutral'.
         """
         return _call_tool("get_aspect_cooccurrence", {
             "anchor_aspect": anchor_aspect, "sentiment_filter": sentiment_filter,
@@ -1454,7 +1454,7 @@ async def run_data_qa(
         model_settings=ModelSettings(temperature=0),
     )
     agent = Agent(
-        name="Fiskars Data QA Runner",
+        name="Product Review Data QA Runner",
         instructions=_build_runner_system_prompt(),
         tools=[
             get_schema,
@@ -1498,6 +1498,7 @@ async def run_data_qa(
         columns=list(last_tabular.get("columns", [])) if show_table else [],
         rows=list(last_tabular.get("rows", [])) if show_table else [],
     )
+
 
 
 
