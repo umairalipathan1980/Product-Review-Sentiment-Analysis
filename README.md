@@ -204,7 +204,7 @@ Users can search and filter the review table by relevant business dimensions and
 
 The **Ask Agent** page is designed for natural-language exploration of the current sentiment dataset. Instead of manually building filters or reading multiple charts, users can ask direct business questions such as what the top complaints are, how one region compares with another, which aspects are strongest, or how sentiment changed over time.
 
-The answers are grounded in the currently loaded sentiment-enriched dataset rather than in generic product knowledge. This makes the page useful for follow-up analysis after reviewing the dashboard. If no current sentiment dataset is available, the page clearly reports that no input data is found.
+The answers are grounded in the currently loaded sentiment-enriched dataset rather than in generic product knowledge. This makes the page useful for follow-up analysis after reviewing the dashboard. Internally, Ask Agent reads the current sentiment dataset into a pandas dataframe and uses its built-in analysis tools to filter, compare, summarize, and inspect the review data before writing the final answer. If no current sentiment dataset is available, the page clearly reports that no input data is found.
 
 Ask Agent uses the following built-in tools to answer questions against the loaded dataset.
 
@@ -231,6 +231,7 @@ Ask Agent uses the following built-in tools to answer questions against the load
 The **Sentiment Analysis** page is the operational entry point for processing review data. It allows users to select the API provider, upload a review file, run the sentiment pipeline, preview the resulting enriched table, and download the saved output.
 
 This page is where the raw review table becomes the analysis-ready dataset used everywhere else in the tool. In practice, it is the first page used when new review data is introduced and the page revisited whenever the dataset needs to be refreshed.
+
 
 
 
