@@ -1,0 +1,19 @@
+# Environment variables
+.env
+backend/.env
+
+# Settings file (contains API keys)
+settings.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

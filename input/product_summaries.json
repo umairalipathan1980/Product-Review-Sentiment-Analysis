@@ -1,0 +1,91 @@
+{
+  "Auraline Premium ANC_AU90": {
+    "generated_at": "2026-03-29T22:55:50.663451",
+    "review_count": 137,
+    "positive_summary": "Customers consistently praise the AU90 for its strong audio performance, especially rich bass, crisp highs, and an overall balanced soundstage. Battery life and ANC are major strengths, with many saying it lasts all day, charges quickly, and blocks ambient noise extremely well. Comfort, solid build quality, reliable mic performance, and suitability for commuting and work-from-home use also stand out.",
+    "negative_summary": "The main complaints focus on inconsistency: a small group of users report disappointing or hollow sound, weak bass, and Bluetooth dropouts. Some also feel the headset is poor for exercise or windy environments, while others question the value for money and say the build can feel cheap or fragile. Battery and ANC issues appear only occasionally but are worth monitoring.",
+    "improvements": "Improve consistency in sound tuning and Bluetooth stability so more users get the premium experience promised by top reviews. Strengthen suitability for active and outdoor use by improving wind handling, fit security for exercise, and perceived durability. Also address value concerns by tightening quality control and ensuring build quality matches the premium price positioning."
+  },
+  "country": {
+    "de": {
+      "generated_at": "2026-03-29T23:06:08.191471",
+      "dimension": "country",
+      "dimension_label": "Country",
+      "value": "de",
+      "review_count": 1159,
+      "positive_summary": "German customers consistently praise the product’s excellent sound quality, strong noise cancellation, long battery life, and comfortable fit. They also highlight solid build quality, reliable Bluetooth/multipoint connectivity, and good microphone performance for calls. Overall, many see it as versatile for work, travel, and workouts, with strong value for the price.",
+      "negative_summary": "The main complaints focus on inconsistent sound performance, with some users describing the audio as flat, tinny, or distorted at higher volume. A smaller but recurring group reports durability issues, weak ANC performance or hiss, faster-than-expected battery drain, and comfort problems such as pressure or poor in-ear stability. There are also occasional complaints about Bluetooth dropouts, poor call quality, and the product not feeling worth its premium price.",
+      "improvements": "Improve consistency in audio tuning and high-volume performance so sound quality matches the strong expectations set by positive reviews. Address durability weak points, refine ANC to reduce hiss and improve real-world noise blocking, and optimize battery standby efficiency. Also improve long-session comfort and fit security, strengthen Bluetooth stability and microphone clarity, and better align pricing with the delivered experience."
+    }
+  },
+  "source": {
+    "audioworld": {
+      "generated_at": "2026-03-29T23:06:31.450217",
+      "dimension": "source",
+      "dimension_label": "Source",
+      "value": "audioworld",
+      "review_count": 207,
+      "positive_summary": "Customers consistently praise the product for its excellent sound quality, highlighting clear audio, strong bass, and crisp highs. Noise cancellation, comfort, battery life, and solid build quality are also major strengths, making it a versatile choice for commuting, work calls, travel, and daily use. Many reviewers also see it as good value, with reliable connectivity and strong trust in the brand.",
+      "negative_summary": "The main complaints focus on inconsistency: some users report disappointing sound, weak or distorted bass at higher volumes, and ANC that lets in too much noise or adds hiss. Comfort can be an issue for some, with tight ear cups or stiff cushions causing discomfort during longer sessions. There are also recurring concerns about microphone performance in calls, occasional connection problems, durability failures like broken hinges, and shorter-than-expected battery life in some cases.",
+      "improvements": "Improve consistency in audio tuning and high-volume performance, while refining ANC to reduce hiss and block noise more effectively across environments. Address fit and ergonomics by reducing clamp pressure and improving cushion softness for longer wear. Strengthening hinge durability, improving microphone noise handling for calls, and optimizing standby and real-world battery performance would help resolve the most common complaints."
+    },
+    "techmart": {
+      "generated_at": "2026-03-29T23:13:20.672605",
+      "dimension": "source",
+      "dimension_label": "Source",
+      "value": "techmart",
+      "review_count": 757,
+      "positive_summary": "Customers consistently praise the headphones for clear, immersive sound, strong build quality, and all-day comfort. Battery life and overall value are major strengths, while many also highlight reliable Bluetooth, effective noise cancellation, and solid microphone performance for calls and work-from-home use.",
+      "negative_summary": "The main complaints center on inconsistency: some users report weak or distorted sound, ineffective ANC or added white noise, and battery drain that falls short of expectations. A smaller but recurring group also mentions flimsy parts or breakage, poor fit over longer sessions, unreliable call quality, and occasional Bluetooth dropouts.",
+      "improvements": "Improve consistency in audio tuning, ANC performance, and battery optimization, especially standby drain and real-world longevity. Strengthen hinges/material durability, refine fit for a wider range of users, and improve microphone clarity and Bluetooth stability so performance matches the strong expectations set by the brand."
+    }
+  },
+  "generation_family": {
+    "Auraline": {
+      "generated_at": "2026-03-29T23:07:00.183634",
+      "dimension": "generation_family",
+      "dimension_label": "Generation",
+      "value": "Auraline",
+      "review_count": 137,
+      "positive_summary": "Customers consistently praise Auraline for its rich, detailed sound, long battery life, and highly effective noise cancellation. Comfort is another standout, with many saying the headphones feel light and comfortable for long sessions, commuting, and working from home. Reviews also highlight solid build quality, clear microphone performance, reliable brand trust, and strong overall value.",
+      "negative_summary": "The main complaints center on inconsistent audio performance, with some users describing weak bass, muddy sound, or a hollow listening experience. A smaller but recurring group reports Bluetooth dropouts, poor suitability for workouts or windy conditions, and concerns about durability feeling cheap or wearing out too quickly. A few reviewers also question the value for money and mention battery life falling short in real-world use.",
+      "improvements": "Improve tuning consistency so sound quality feels reliably rich and balanced across all units and use cases. Strengthen Bluetooth stability, especially to reduce connection drops, and improve performance in wind and during exercise. Address perceived durability and value concerns by reinforcing materials, validating battery performance in everyday scenarios, and ensuring the product feels premium for its price."
+    }
+  },
+  "region": {
+    "Central & Western Europe": {
+      "generated_at": "2026-03-29T23:07:18.659032",
+      "dimension": "region",
+      "dimension_label": "Region",
+      "value": "Central & Western Europe",
+      "review_count": 1219,
+      "positive_summary": "Customers in Central & Western Europe consistently praise the product for its excellent sound quality, strong noise cancellation, long battery life, and comfortable fit. They also highlight solid build quality, reliable Bluetooth/multipoint connectivity, and strong value for money, especially for work, travel, and workouts. The microphone quality and overall brand reliability further reinforce positive sentiment.",
+      "negative_summary": "The main complaints focus on inconsistent sound performance, with some users describing the audio as flat, tinny, or distorted at higher volumes. A smaller but recurring group reports durability problems, weak ANC performance or ANC hiss, fast battery drain, comfort issues such as pressure or earbuds falling out, and occasional Bluetooth instability. Some customers also feel the premium price is not justified when these issues appear.",
+      "improvements": "Improve consistency in audio tuning and high-volume performance, and strengthen quality control around materials, hinges, and plastic parts. Refine ANC to reduce hiss and improve effectiveness in noisy or windy environments, while also addressing standby battery drain and short real-world battery life for some users. Better fit options, more stable in-ear retention, stronger call microphone performance, and more reliable Bluetooth stability would help reduce mixed experiences and better justify the price."
+    }
+  },
+  "overall": {
+    "All reviews": {
+      "generated_at": "2026-03-29T23:12:40.964719",
+      "dimension": "overall",
+      "dimension_label": "Overall",
+      "value": "All reviews",
+      "review_count": 3000,
+      "positive_summary": "Customers consistently praise the product’s standout audio quality, describing it as clear, rich, and competitive with more expensive models. They also value the strong build quality, long battery life, effective noise cancellation, and comfortable fit for extended wear. Reliable Bluetooth connectivity, solid microphone performance, and good overall value make it especially well liked for commuting, work, and everyday use.",
+      "negative_summary": "The main complaints focus on inconsistent sound performance, with some users reporting distortion at higher volumes, weak bass, or flat audio. A smaller but recurring group mentions durability concerns such as cracking plastic, broken hinges, and a cheap feel, along with uneven noise cancellation, comfort issues, battery drain, and occasional Bluetooth dropouts. Some reviewers also feel the microphone underperforms on calls and that the product does not fully justify its premium price.",
+      "improvements": "Improve consistency in audio tuning and high-volume performance, especially around bass response and distortion control. Strengthen materials and hinge construction, while refining fit stability and long-session comfort to reduce reports of discomfort or earbuds falling out. Additional gains in ANC reliability, standby battery efficiency, call microphone clarity, and Bluetooth stability would help close the gap between strong overall sentiment and the smaller set of recurring complaints."
+    }
+  },
+  "product_name": {
+    "SonicWave Lite In-Ear_SW200": {
+      "generated_at": "2026-03-29T23:14:10.659574",
+      "dimension": "product_name",
+      "dimension_label": "Product",
+      "value": "SonicWave Lite In-Ear_SW200",
+      "review_count": 359,
+      "positive_summary": "Customers consistently praise the SonicWave Lite In-Ear_SW200 for its strong overall audio performance, especially clear highs, solid bass, and crisp sound across frequencies. They also value the comfortable fit, reliable all-day battery life, sturdy build quality, and strong everyday versatility for commuting, workouts, and work calls. Many reviewers further highlight good noise cancellation, dependable Bluetooth, and strong value for the price.",
+      "negative_summary": "The main complaints focus on inconsistency: some users report tinny or weak sound, ineffective ANC, and occasional Bluetooth dropouts or audio stuttering. A smaller but recurring group also mentions discomfort after longer use, earbuds slipping out, short battery endurance in real-world use, and mic quality sounding muffled on calls. There are also some concerns about durability and whether the product fully lives up to the brand reputation or price.",
+      "improvements": "Improve consistency in sound tuning, especially bass depth and overall fullness, so users do not experience hollow or flat audio. Strengthen ANC performance and reduce white-noise artifacts, while also making Bluetooth connectivity more stable across devices and usage scenarios. Further refine ergonomic fit, call microphone clarity, battery efficiency in standby and daily use, and durability of key components to better match customer expectations on value and brand trust."
+    }
+  }
+}
