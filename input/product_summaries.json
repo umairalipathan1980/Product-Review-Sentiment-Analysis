@@ -86,6 +86,16 @@
       "positive_summary": "Customers consistently praise the SonicWave Lite In-Ear_SW200 for its strong overall audio performance, especially clear highs, solid bass, and crisp sound across frequencies. They also value the comfortable fit, reliable all-day battery life, sturdy build quality, and strong everyday versatility for commuting, workouts, and work calls. Many reviewers further highlight good noise cancellation, dependable Bluetooth, and strong value for the price.",
       "negative_summary": "The main complaints focus on inconsistency: some users report tinny or weak sound, ineffective ANC, and occasional Bluetooth dropouts or audio stuttering. A smaller but recurring group also mentions discomfort after longer use, earbuds slipping out, short battery endurance in real-world use, and mic quality sounding muffled on calls. There are also some concerns about durability and whether the product fully lives up to the brand reputation or price.",
       "improvements": "Improve consistency in sound tuning, especially bass depth and overall fullness, so users do not experience hollow or flat audio. Strengthen ANC performance and reduce white-noise artifacts, while also making Bluetooth connectivity more stable across devices and usage scenarios. Further refine ergonomic fit, call microphone clarity, battery efficiency in standby and daily use, and durability of key components to better match customer expectations on value and brand trust."
+    },
+    "SonicWave Sport In-Ear_SW300": {
+      "generated_at": "2026-03-31T17:27:35.548286",
+      "dimension": "product_name",
+      "dimension_label": "Product",
+      "value": "SonicWave Sport In-Ear_SW300",
+      "review_count": 400,
+      "positive_summary": "Customers consistently praise the SW300 for its clear, balanced sound, strong noise cancellation, and long battery life that often lasts a full day. Many also highlight the solid build quality, comfortable fit, reliable Bluetooth connectivity, and good overall value, especially for workouts, commuting, and home office use. The microphone also gets positive feedback for clear calls.",
+      "negative_summary": "The main complaints focus on inconsistent audio performance, with some users reporting distortion at higher volumes or a thin, hollow sound. A smaller but recurring group also mentions comfort issues, earbuds slipping out or feeling too tight, along with weak ANC performance, fast battery drain, connection dropouts, and poor call quality. Some reviewers also feel the product does not justify its premium price.",
+      "improvements": "Improve sound tuning and stability at higher volumes to eliminate distortion and make audio quality more consistent across units. Refine the fit with better sizing or tip options, and strengthen ANC performance in challenging environments such as wind. Also address standby battery drain, Bluetooth reliability, microphone clarity on calls, and overall quality control to better support the product’s price positioning."
     }
   },
   "reference_model": {
