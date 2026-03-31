@@ -87,5 +87,27 @@
       "negative_summary": "The main complaints focus on inconsistency: some users report tinny or weak sound, ineffective ANC, and occasional Bluetooth dropouts or audio stuttering. A smaller but recurring group also mentions discomfort after longer use, earbuds slipping out, short battery endurance in real-world use, and mic quality sounding muffled on calls. There are also some concerns about durability and whether the product fully lives up to the brand reputation or price.",
       "improvements": "Improve consistency in sound tuning, especially bass depth and overall fullness, so users do not experience hollow or flat audio. Strengthen ANC performance and reduce white-noise artifacts, while also making Bluetooth connectivity more stable across devices and usage scenarios. Further refine ergonomic fit, call microphone clarity, battery efficiency in standby and daily use, and durability of key components to better match customer expectations on value and brand trust."
     }
+  },
+  "reference_model": {
+    "AU90": {
+      "generated_at": "2026-03-31T12:36:18.814833",
+      "dimension": "reference_model",
+      "dimension_label": "Model",
+      "value": "AU90",
+      "review_count": 137,
+      "positive_summary": "Customers consistently praise the AU90 for its rich, balanced sound, strong active noise cancellation, and all-day battery life. Many also highlight the comfortable fit for long listening sessions, solid build quality, reliable microphone performance, and dependable Bluetooth pairing for commuting and work-from-home use. Overall, reviewers see it as a trustworthy, good-value model with premium everyday performance.",
+      "negative_summary": "The main complaints focus on inconsistent audio quality, with some users describing the sound as weak, muddy, or hollow. A smaller but recurring group reports Bluetooth dropouts, disappointing battery life, poor suitability for exercise or windy conditions, and concerns that the product feels flimsy or overpriced. While negative feedback is limited compared with praise, these issues affect core parts of the user experience.",
+      "improvements": "Improve tuning consistency so sound quality feels clear and full across all units, especially bass performance. Strengthen Bluetooth stability, optimize battery reliability, and improve durability for users who expect a sturdier premium product. If the AU90 is positioned for active or outdoor use, better wind handling and fit/security during exercise would address current gaps."
+    },
+    "B20": {
+      "generated_at": "2026-03-31T12:36:34.397362",
+      "dimension": "reference_model",
+      "dimension_label": "Model",
+      "value": "B20",
+      "review_count": 136,
+      "positive_summary": "Customers consistently praise the B20 for its standout audio quality, describing the sound as clear, balanced, and detailed across frequencies. They also value the strong build, effective noise cancellation, all-day comfort, and long battery life, with many noting reliable Bluetooth, good call performance, and strong overall value.",
+      "negative_summary": "Complaints are very limited, but a few users report concerns about build quality, saying the headphones can feel cheap or flimsy. Isolated issues also mention weaker-than-expected ANC, short battery life, poor performance in windy conditions, and inconsistent microphone clarity.",
+      "improvements": "Focus on tightening build consistency so the product always feels sturdy and premium. Improve ANC performance in challenging environments, especially wind, and validate battery reliability under real commuting use. It would also help to refine microphone pickup so call quality remains clear in all conditions."
+    }
   }
 }

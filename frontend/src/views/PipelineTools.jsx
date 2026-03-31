@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Download, Loader, Settings, Sparkles, Table } from 'lucide-react'
+import { ChevronDown, Download, Loader, Plus, RotateCcw, Settings, Sparkles, Table, Trash2 } from 'lucide-react'
 
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
@@ -18,6 +18,28 @@ function getErrorMessage(error) {
   return error?.response?.data?.detail || error?.message || 'Unknown error'
 }
 
+const DEFAULT_ASPECT_DEFINITIONS = [
+  { aspect_type: 'SOUND_QUALITY', definition: 'General audio performance, bass, treble, clarity, soundstage' },
+  { aspect_type: 'NOISE_CANCELLATION', definition: 'Active noise cancellation effectiveness, ambient noise blocking, transparency mode' },
+  { aspect_type: 'COMFORT_FIT', definition: 'Wearing comfort, ear cup pressure, fit stability, long-session fatigue' },
+  { aspect_type: 'BATTERY_LIFE', definition: 'Battery duration, charging speed, standby drain, battery longevity over time' },
+  { aspect_type: 'BUILD_DURABILITY', definition: 'Construction, materials, hinge strength, durability, craftsmanship' },
+  { aspect_type: 'CONNECTIVITY', definition: 'Bluetooth stability, pairing speed, multipoint, range, audio dropouts' },
+  { aspect_type: 'MICROPHONE_QUALITY', definition: 'Call clarity, voice pickup, background noise rejection, video call performance' },
+  { aspect_type: 'USE_CASE', definition: 'Specific use cases mentioned (commuting, gym, travel, gaming, etc.)' },
+  { aspect_type: 'PRICE_VALUE', definition: 'Price, value for money, worth the cost' },
+  { aspect_type: 'BRAND_TRUST', definition: 'Brand reputation and expected quality' }
+]
+
+function cloneAspectDefinitions() {
+  return DEFAULT_ASPECT_DEFINITIONS.map((item) => ({ ...item }))
+}
+
+function normalizeAspectType(value) {
+  const tokens = String(value || '').match(/[A-Za-z0-9]+/g) || []
+  return tokens.slice(0, 3).map((token) => token.toUpperCase()).join('_')
+}
+
 export function PipelineTools() {
   const [error, setError] = useState('')
   const [loadingSentiment, setLoadingSentiment] = useState(false)
@@ -32,13 +54,52 @@ export function PipelineTools() {
 
   const [sentimentForm, setSentimentForm] = useState({
     batch_size: '',
-    max_reviews: ''
+    max_reviews: '',
+    dataset_description: ''
   })
   const [sentimentFile, setSentimentFile] = useState(null)
+  const [aspectDefinitions, setAspectDefinitions] = useState(() => cloneAspectDefinitions())
+  const [expandedAspectIndex, setExpandedAspectIndex] = useState(null)
   const [tableData, setTableData] = useState(null)
 
   const updateSentimentField = (field, value) => {
     setSentimentForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const updateAspectDefinition = (index, field, value) => {
+    setAspectDefinitions((current) => current.map((item, itemIndex) => (
+      itemIndex === index ? { ...item, [field]: value } : item
+    )))
+  }
+
+  const addAspectDefinition = () => {
+    setAspectDefinitions((current) => {
+      const nextIndex = current.length
+      setExpandedAspectIndex(nextIndex)
+      return [...current, { aspect_type: '', definition: '' }]
+    })
+  }
+
+  const removeAspectDefinition = (index) => {
+    setAspectDefinitions((current) => {
+      if (current.length === 1) return current
+      return current.filter((_, itemIndex) => itemIndex !== index)
+    })
+    setExpandedAspectIndex((current) => {
+      if (current === null) return null
+      if (current === index) return null
+      if (current > index) return current - 1
+      return current
+    })
+  }
+
+  const resetAspectDefinitions = () => {
+    setAspectDefinitions(cloneAspectDefinitions())
+    setExpandedAspectIndex(null)
+  }
+
+  const toggleAspectDefinition = (index) => {
+    setExpandedAspectIndex((current) => (current === index ? null : index))
   }
 
   useEffect(() => {
@@ -55,7 +116,7 @@ export function PipelineTools() {
     loadSettings()
   }, [])
 
-  const buildSentimentNumericPayload = () => {
+  const buildSentimentPayload = () => {
     const payload = {}
     if (sentimentForm.batch_size.trim()) {
       const batchSize = Number(sentimentForm.batch_size)
@@ -71,6 +132,42 @@ export function PipelineTools() {
       }
       payload.max_reviews = maxReviews
     }
+    const datasetDescription = sentimentForm.dataset_description.trim()
+    if (datasetDescription) {
+      if (datasetDescription.length > 100) {
+        throw new Error('Dataset description must be 100 characters or fewer')
+      }
+      payload.dataset_description = datasetDescription
+    }
+
+    const nonEmptyAspectDefinitions = aspectDefinitions
+      .map((item) => ({
+        aspect_type: item.aspect_type.trim(),
+        definition: item.definition.trim()
+      }))
+      .filter((item) => item.aspect_type || item.definition)
+
+    if (!nonEmptyAspectDefinitions.length) {
+      throw new Error('At least one aspect definition is required')
+    }
+
+    const seenAspectTypes = new Set()
+    payload.aspect_definitions = nonEmptyAspectDefinitions.map((item) => {
+      if (!item.aspect_type || !item.definition) {
+        throw new Error('Each aspect definition must include both an aspect type and a definition')
+      }
+
+      const normalizedAspectType = normalizeAspectType(item.aspect_type)
+      if (!normalizedAspectType) {
+        throw new Error('Each aspect type must include at least one letter or number')
+      }
+      if (seenAspectTypes.has(normalizedAspectType)) {
+        throw new Error(`Duplicate aspect type after normalization: ${normalizedAspectType}`)
+      }
+      seenAspectTypes.add(normalizedAspectType)
+      return item
+    })
+
     return payload
   }
 
@@ -81,14 +178,14 @@ export function PipelineTools() {
       setDownloadReady(false)
       setSentimentMessage('Sentiment run started. Processing large files may take several minutes; progress is logged in backend CLI per batch.')
 
-      const numericPayload = buildSentimentNumericPayload()
+      const sentimentPayload = buildSentimentPayload()
       if (sentimentFile) {
         await runSentimentUpload({
           unified_reviews: sentimentFile,
-          ...numericPayload
+          ...sentimentPayload
         })
       } else {
-        await runSentiment(numericPayload)
+        await runSentiment(sentimentPayload)
       }
 
       setDownloadReady(true)
@@ -240,12 +337,127 @@ export function PipelineTools() {
                 Generated output fields: <span className="font-semibold">language</span>, <span className="font-semibold">overall sentiment</span>, <span className="font-semibold">overall confidence</span>, <span className="font-semibold">aspects json</span>, and <span className="font-semibold">aspect count</span>.
               </p>
             </div>
+            <div className="rounded-[20px] border border-stone-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="font-semibold text-slate-900">Aspect taxonomy</p>
+                  <p className="mt-2 max-w-3xl leading-6 text-slate-600">
+                    Define the aspect types and descriptions to extract for this run. Use 2-3 words for each aspect type. If you enter more than 3 words, the system keeps the first 3 and normalizes them automatically.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="outline" onClick={addAspectDefinition} className="gap-2">
+                    <Plus className="h-4 w-4" aria-hidden="true" />
+                    Add aspect
+                  </Button>
+                  <Button type="button" variant="outline" onClick={resetAspectDefinitions} className="gap-2">
+                    <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                    Reset defaults
+                  </Button>
+                </div>
+              </div>
+              <div className="mt-4 space-y-3">
+                {aspectDefinitions.map((item, index) => {
+                  const normalizedAspectType = normalizeAspectType(item.aspect_type)
+                  const isExpanded = expandedAspectIndex === index
+                  const definitionPreview = item.definition.length > 88
+                    ? `${item.definition.slice(0, 88)}...`
+                    : item.definition
+                  return (
+                    <div key={`${index}-${normalizedAspectType || 'aspect'}`} className="rounded-2xl border border-slate-200 bg-stone-50/70 p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={() => toggleAspectDefinition(index)}
+                          className="flex min-w-0 flex-1 items-start gap-3 text-left"
+                        >
+                          <span className={`mt-1 rounded-full border border-slate-200 bg-white p-1 text-slate-500 transition ${isExpanded ? 'rotate-180' : ''}`}>
+                            <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-slate-900">{item.aspect_type || `Aspect ${index + 1}`}</p>
+                            {definitionPreview && (
+                              <p className="mt-2 line-clamp-1 text-sm text-slate-600">{definitionPreview}</p>
+                            )}
+                          </div>
+                        </button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => removeAspectDefinition(index)}
+                            disabled={loadingSentiment || aspectDefinitions.length === 1}
+                            className="gap-2"
+                          >
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                            Remove
+                          </Button>
+                        </div>
+                      </div>
+                      <AnimatePresence initial={false}>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0, y: -8 }}
+                            animate={{ opacity: 1, height: 'auto', y: 0 }}
+                            exit={{ opacity: 0, height: 0, y: -8 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.8fr)]">
+                              <div className="space-y-2">
+                                <label className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                                  Aspect type
+                                </label>
+                                <Input
+                                  value={item.aspect_type}
+                                  onChange={(event) => updateAspectDefinition(index, 'aspect_type', event.target.value)}
+                                  placeholder="e.g., sound quality"
+                                  disabled={loadingSentiment}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                                  Definition
+                                </label>
+                                <Input
+                                  value={item.definition}
+                                  onChange={(event) => updateAspectDefinition(index, 'definition', event.target.value)}
+                                  placeholder="Describe what this aspect should cover."
+                                  disabled={loadingSentiment}
+                                />
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
             <Input
               type="file"
               accept=".xlsx"
               onChange={(e) => setSentimentFile(e.target.files?.[0] || null)}
               disabled={loadingSentiment}
             />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700" htmlFor="dataset-description">
+                Optional dataset description
+              </label>
+              <Input
+                id="dataset-description"
+                value={sentimentForm.dataset_description}
+                onChange={(event) => updateSentimentField('dataset_description', event.target.value)}
+                placeholder="e.g., This is a dataset of consumer audio products and headphones."
+                disabled={loadingSentiment}
+                maxLength={100}
+              />
+              <div className="flex items-center justify-between gap-3 text-xs leading-5 text-slate-500">
+                <p>This short note is optional. If provided, it is included in the sentiment-analysis prompt to give the model extra dataset context.</p>
+                <span>{sentimentForm.dataset_description.length}/100</span>
+              </div>
+            </div>
             <div className="grid gap-3 md:grid-cols-2">
               <Input
                 value={sentimentForm.batch_size}
@@ -371,6 +583,7 @@ export function PipelineTools() {
     </div>
   )
 }
+
 
 
 

@@ -1,7 +1,8 @@
 ﻿import { useState, useEffect } from 'react'
-import { Copy, MessageSquare, Star, ThumbsUp, Sparkles, X, ZoomIn } from 'lucide-react'
+import { Check, Copy, Info, MessageSquare, Pencil, Star, ThumbsUp, Sparkles, X, ZoomIn } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
+import { enrichAgentText, markdownComponents } from '../lib/markdownHelpers'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { AspectSentimentChart } from '../components/charts/AspectSentimentChart'
@@ -73,6 +74,12 @@ export function AnalyticsDashboard() {
   const [sentimentTrendView, setSentimentTrendView] = useState('rolling')
   const [aspectView, setAspectView] = useState('grouped')
   const [showInterpretModal, setShowInterpretModal] = useState(false)
+  const [showDataDescription, setShowDataDescription] = useState(false)
+  const [editingDescription, setEditingDescription] = useState(false)
+  const [datasetDescription, setDatasetDescription] = useState(
+    'This is a dataset of customer audio products and headphones. It contains 3,000 consumer electronics reviews spanning 7 years (2018–2025), comprising five retail platforms: Techmart, Shopzone, Gadgetbay, Brandsite, and Audioworld. Reviews cover headphones and audio accessories, enriched with 10 aspect-level sentiment across dimensions: Sound Quality, Noise Cancellation, Comfort & Fit, Battery Life, Build & Durability, Connectivity, Microphone Quality, Use Case, Price & Value, and Brand Trust.'
+  )
+  const [descriptionDraft, setDescriptionDraft] = useState('')
   const [interpretation, setInterpretation] = useState('')
   const [interpretLoading, setInterpretLoading] = useState(false)
   const [interpretChartType, setInterpretChartType] = useState('Rating Trend')
@@ -304,7 +311,7 @@ Please provide a clear, practical analysis in simple terms that a business user 
   }
 
   const activeDimensionLabel = filterDimensions.find((dimension) => dimension.id === filterDimension)?.label || 'Selection'
-  const activeScopeLabel = filterDimension === 'overall' ? 'All reviews' : filterValue || 'Select a segment'
+
 
   if (dataError) {
     return (
@@ -333,13 +340,69 @@ Please provide a clear, practical analysis in simple terms that a business user 
         <Card className="overflow-hidden bg-[linear-gradient(180deg,rgba(255,252,247,0.98),rgba(251,247,240,0.98))] text-slate-900">
           <CardContent className="relative py-4">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(183,121,31,0.16),transparent_30%)]" />
-            <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="relative flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               {/* Left: logo + tagline */}
               <div className="space-y-2">
                 <img src="/logo.png" alt="Sentiment Analysis logo" className="h-20 w-auto object-contain md:h-24" />
                 <p className="max-w-xl text-sm leading-6 text-slate-600 md:text-base">
                   Read the current state of customer sentiment, monitor rating and emotion over time, and identify which product aspects shape the story behind the numbers.
                 </p>
+                <button
+                  onClick={() => setShowDataDescription((v) => !v)}
+                  className="inline-flex items-center gap-1.5 text-xs text-dashboard-copper hover:text-dashboard-copper/80 transition-colors"
+                >
+                  <Info className="h-3.5 w-3.5" />
+                  {showDataDescription ? 'Hide dataset info' : 'About current dataset'}
+                </button>
+                <AnimatePresence>
+                  {showDataDescription && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-1 rounded-xl border border-amber-100 bg-white/70 p-3.5 shadow-sm backdrop-blur-sm">
+                        {editingDescription ? (
+                          <div className="space-y-2">
+                            <textarea
+                              className="w-full resize-none rounded-lg border border-amber-200 bg-white p-2 text-xs leading-6 text-slate-700 outline-none focus:ring-1 focus:ring-dashboard-copper"
+                              rows={5}
+                              value={descriptionDraft}
+                              onChange={(e) => setDescriptionDraft(e.target.value)}
+                            />
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => setEditingDescription(false)}
+                                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs text-slate-500 hover:bg-slate-100 transition-colors"
+                              >
+                                <X className="h-3 w-3" /> Cancel
+                              </button>
+                              <button
+                                onClick={() => { setDatasetDescription(descriptionDraft); setEditingDescription(false) }}
+                                className="inline-flex items-center gap-1 rounded-lg bg-dashboard-copper px-2.5 py-1 text-xs font-medium text-white hover:bg-dashboard-copper/90 transition-colors"
+                              >
+                                <Check className="h-3 w-3" /> Save
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-xs leading-6 text-slate-700">{datasetDescription}</p>
+                            <button
+                              onClick={() => { setDescriptionDraft(datasetDescription); setEditingDescription(true) }}
+                              className="shrink-0 rounded-md p-1 text-slate-400 hover:bg-amber-50 hover:text-dashboard-copper transition-colors"
+                              title="Edit description"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Right: at-a-glance snapshot */}
@@ -803,7 +866,7 @@ Please provide a clear, practical analysis in simple terms that a business user 
                       </div>
                     ) : (
                       <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-slate-900 prose-p:text-slate-700 prose-p:leading-7 prose-strong:text-slate-900 prose-li:text-slate-700 prose-li:leading-7 prose-h1:text-base prose-h2:text-sm prose-h3:text-sm">
-                        <ReactMarkdown>{interpretation}</ReactMarkdown>
+                        <ReactMarkdown components={markdownComponents}>{enrichAgentText(interpretation)}</ReactMarkdown>
                       </div>
                     )}
                   </div>
@@ -836,7 +899,7 @@ Please provide a clear, practical analysis in simple terms that a business user 
                 transition={{ duration: 0.2 }}
                 className="w-full max-w-6xl h-[85vh] flex flex-col"
               >
-                <Card className="shadow-2xl flex flex-col h-full">
+                <Card className="shadow-2xl flex flex-col h-full !bg-white backdrop-blur-none">
                   <CardHeader className="flex-shrink-0 border-b border-slate-200">
                     <div className="flex items-start justify-between">
                       <div>
@@ -874,13 +937,14 @@ Please provide a clear, practical analysis in simple terms that a business user 
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="flex-1 overflow-auto pt-6">
+                  <CardContent className="pt-6 pb-6">
                     <RatingTrendChart
                       data={analyticsData.rating_trend}
                       mode={ratingTrendView}
-                      height={typeof window === 'undefined' ? 480 : window.innerHeight * 0.6}
+                      height={500}
+                      zoom
                     />
-                    <p className="mt-4 text-sm text-slate-500">
+                    <p className="mt-3 text-sm text-slate-500">
                       {ratingTrendHelpText[ratingTrendView]}
                     </p>
                   </CardContent>
@@ -913,7 +977,7 @@ Please provide a clear, practical analysis in simple terms that a business user 
                 transition={{ duration: 0.2 }}
                 className="w-full max-w-6xl h-[85vh] flex flex-col"
               >
-                <Card className="shadow-2xl flex flex-col h-full">
+                <Card className="shadow-2xl flex flex-col h-full !bg-white backdrop-blur-none">
                   <CardHeader className="flex-shrink-0 border-b border-slate-200">
                     <div className="flex items-start justify-between">
                       <div>
@@ -951,13 +1015,14 @@ Please provide a clear, practical analysis in simple terms that a business user 
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="flex-1 overflow-auto pt-6">
+                  <CardContent className="pt-6 pb-6">
                     <SentimentTrendChart
                       data={analyticsData.sentiment_trend}
                       mode={sentimentTrendView}
-                      height={typeof window === 'undefined' ? 480 : window.innerHeight * 0.6}
+                      height={500}
+                      zoom
                     />
-                    <p className="mt-4 text-sm text-slate-500">
+                    <p className="mt-3 text-sm text-slate-500">
                       {sentimentTrendHelpText[sentimentTrendView]}
                     </p>
                   </CardContent>

@@ -38,10 +38,24 @@ app.add_middleware(
 )
 
 
+class AspectDefinitionInput(BaseModel):
+    aspect_type: str = Field(description="Short aspect label provided by the user")
+    definition: str = Field(description="Definition of the aspect")
+
+
 class SentimentRequest(BaseModel):
     unified_reviews_path: str | None = Field(default=None, description="Path to unified_reviews.xlsx")
     batch_size: int | None = Field(default=None, ge=1, description="Batch size for sentiment requests")
     max_reviews: int | None = Field(default=None, ge=1, description="Optional cap for number of reviews to analyze")
+    dataset_description: str | None = Field(
+        default=None,
+        max_length=100,
+        description="Optional short description of the dataset context (max 100 characters)",
+    )
+    aspect_definitions: list[AspectDefinitionInput] | None = Field(
+        default=None,
+        description="Optional runtime aspect taxonomy for this sentiment run",
+    )
 
 
 class SettingsModel(BaseModel):
@@ -59,6 +73,30 @@ class AgentChatRequest(BaseModel):
 
 class ChartInterpretRequest(BaseModel):
     prompt: str = Field(description="Chart data and interpretation request")
+
+
+def _parse_aspect_definitions_form(raw_value: str | None) -> list[dict[str, str]] | None:
+    if raw_value is None or not raw_value.strip():
+        return None
+
+    try:
+        parsed = json.loads(raw_value)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid aspect definitions JSON: {exc}") from exc
+
+    if not isinstance(parsed, list):
+        raise HTTPException(status_code=400, detail="Aspect definitions must be a list")
+
+    cleaned: list[dict[str, str]] = []
+    for item in parsed:
+        if not isinstance(item, dict):
+            continue
+        cleaned.append({
+            "aspect_type": str(item.get("aspect_type", "")),
+            "definition": str(item.get("definition", "")),
+        })
+
+    return cleaned
 
 
 @app.get("/")
@@ -83,6 +121,8 @@ async def run_sentiment(request: SentimentRequest):
             unified_reviews_path=unified_path,
             batch_size=request.batch_size,
             max_reviews=request.max_reviews,
+            dataset_description=request.dataset_description,
+            aspect_definitions=[item.model_dump() for item in request.aspect_definitions] if request.aspect_definitions else None,
         )
         return {"status": "success", "step": "sentiment", "stats": stats}
     except FileNotFoundError as exc:
@@ -96,16 +136,22 @@ async def run_sentiment_with_upload(
     unified_reviews: UploadFile = File(...),
     batch_size: int | None = Form(default=None),
     max_reviews: int | None = Form(default=None),
+    dataset_description: str | None = Form(default=None, max_length=100),
+    aspect_definitions: str | None = Form(default=None),
 ):
     try:
         DEFAULT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         unified_path = DEFAULT_SENTIMENT_INPUT_FILE
         unified_path.write_bytes(await unified_reviews.read())
 
+        parsed_aspect_definitions = _parse_aspect_definitions_form(aspect_definitions)
+
         stats = run_sentiment_pipeline(
             unified_reviews_path=unified_path,
             batch_size=batch_size,
             max_reviews=max_reviews,
+            dataset_description=dataset_description,
+            aspect_definitions=parsed_aspect_definitions,
         )
         return {"status": "success", "step": "sentiment", "stats": stats}
     except Exception as exc:
@@ -238,22 +284,26 @@ async def get_aspect_benchmark_api(
     products_json: str | None = None,
     countries: str | None = None,
     countries_json: str | None = None,
+    sources: str | None = None,
+    sources_json: str | None = None,
 ):
     """
     Get aspect benchmark data for radar chart.
 
     Query params:
-    - scope: 'overall', 'product', or 'country'
+    - scope: 'overall', 'product', 'country', or 'source'
     - source: source filter value or 'all'
     - products: comma-separated product names (used when scope='product')
     - countries: comma-separated country names (used when scope='country')
+    - sources: comma-separated source names (used when scope='source')
     """
     try:
-        if scope not in {"overall", "product", "country"}:
-            raise HTTPException(status_code=400, detail="scope must be 'overall', 'product', or 'country'")
+        if scope not in {"overall", "product", "country", "source"}:
+            raise HTTPException(status_code=400, detail="scope must be 'overall', 'product', 'country', or 'source'")
 
         selected_products: list[str] = []
         selected_countries: list[str] = []
+        selected_sources: list[str] = []
         if products_json:
             try:
                 parsed_products = json.loads(products_json)
@@ -274,6 +324,16 @@ async def get_aspect_benchmark_api(
         elif countries:
             selected_countries = [c.strip() for c in countries.split(",") if c.strip()]
 
+        if sources_json:
+            try:
+                parsed_sources = json.loads(sources_json)
+                if isinstance(parsed_sources, list):
+                    selected_sources = [str(s).strip() for s in parsed_sources if str(s).strip()]
+            except json.JSONDecodeError as exc:
+                raise HTTPException(status_code=400, detail=f"Invalid sources_json: {exc}") from exc
+        elif sources:
+            selected_sources = [s.strip() for s in sources.split(",") if s.strip()]
+
         df = load_sentiment_data()
         payload = get_aspect_benchmark(
             df=df,
@@ -281,6 +341,7 @@ async def get_aspect_benchmark_api(
             source=source,
             products=selected_products,
             countries=selected_countries,
+            sources=selected_sources,
         )
         return {"status": "success", "data": payload}
     except FileNotFoundError as exc:

@@ -12,8 +12,10 @@ from sentiment_prompts import (
     BATCH_CONFIG,
     BatchReviewSentiment,
     ReviewSentiment,
+    build_aspect_definitions,
     build_system_prompt,
     build_user_prompt,
+    normalize_aspect_type,
 )
 
 
@@ -40,34 +42,43 @@ def _call_api(client, config: dict, system_prompt: str, user_prompt: str) -> Bat
     return response.choices[0].message.parsed
 
 
-def _flatten_result(result: ReviewSentiment) -> dict:
+def _flatten_result(result: ReviewSentiment, allowed_aspect_types: set[str]) -> dict:
     """Flatten a ReviewSentiment to a flat dict for DataFrame."""
+    normalized_aspects = []
+    for aspect in result.aspects:
+        normalized_name = normalize_aspect_type(aspect.aspect)
+        if not normalized_name or normalized_name not in allowed_aspect_types:
+            continue
+        normalized_aspects.append(
+            {
+                "aspect": normalized_name,
+                "sentiment": aspect.sentiment.value,
+                "evidence": aspect.evidence,
+                "confidence": aspect.confidence,
+            }
+        )
+
     return {
         "review_id": result.review_id,
         "language": result.language,
         "overall_sentiment": result.overall_sentiment.value,
         "overall_confidence": result.overall_confidence,
-        "aspects_json": json.dumps(
-            [
-                {
-                    "aspect": aspect.aspect.value,
-                    "sentiment": aspect.sentiment.value,
-                    "evidence": aspect.evidence,
-                    "confidence": aspect.confidence,
-                }
-                for aspect in result.aspects
-            ],
-            ensure_ascii=False,
-        ),
-        "aspect_count": len(result.aspects),
+        "aspects_json": json.dumps(normalized_aspects, ensure_ascii=False),
+        "aspect_count": len(normalized_aspects),
     }
 
 
 def _process_batch(
-    client, config: dict, reviews: list[dict], system_prompt: str, batch_num: int
+    client,
+    config: dict,
+    reviews: list[dict],
+    system_prompt: str,
+    batch_num: int,
+    allowed_aspect_types: set[str],
+    dataset_description: str | None = None,
 ) -> list[dict]:
     """Process a batch of reviews and return flattened results."""
-    user_prompt = build_user_prompt(reviews)
+    user_prompt = build_user_prompt(reviews, dataset_description=dataset_description)
 
     for attempt in range(BATCH_CONFIG["max_retries"]):
         try:
@@ -79,7 +90,7 @@ def _process_batch(
                     f"for {len(reviews)} reviews"
                 )
 
-            return [_flatten_result(r) for r in parsed.reviews]
+            return [_flatten_result(r, allowed_aspect_types) for r in parsed.reviews]
 
         except Exception as e:
             print(f"  Batch {batch_num} attempt {attempt + 1}: Error - {e}")
@@ -94,6 +105,8 @@ def run_sentiment_pipeline(
     unified_reviews_path: Path,
     batch_size: int | None = None,
     max_reviews: int | None = None,
+    dataset_description: str | None = None,
+    aspect_definitions: list[dict] | None = None,
 ) -> dict:
     """Run sentiment analysis over unified reviews and prepare downloadable enriched output."""
     if not unified_reviews_path.exists():
@@ -104,7 +117,9 @@ def run_sentiment_pipeline(
 
     config = get_openai_config(use_azure=True)
     client = create_openai_client(config)
-    system_prompt = build_system_prompt()
+    runtime_aspect_definitions = build_aspect_definitions(aspect_definitions)
+    allowed_aspect_types = set(runtime_aspect_definitions)
+    system_prompt = build_system_prompt(runtime_aspect_definitions)
 
     provider = "Azure OpenAI" if config.get("use_azure") else "OpenAI"
     model = config.get("model", "unknown")
@@ -128,7 +143,15 @@ def run_sentiment_pipeline(
         batch = reviews[i : i + batch_size]
         print(f"Processing batch {batch_num}/{num_batches} ({len(batch)} reviews)...")
 
-        results = _process_batch(client, config, batch, system_prompt, batch_num)
+        results = _process_batch(
+            client,
+            config,
+            batch,
+            system_prompt,
+            batch_num,
+            allowed_aspect_types,
+            dataset_description=dataset_description,
+        )
         all_results.extend(results)
 
         if batch_num < num_batches:

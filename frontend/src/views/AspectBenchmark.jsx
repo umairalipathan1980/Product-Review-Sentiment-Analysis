@@ -2,6 +2,7 @@
 import { Radar, Sparkles, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
+import { enrichAgentText, markdownComponents } from '../lib/markdownHelpers'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { AspectBenchmarkRadar } from '../components/charts/AspectBenchmarkRadar'
@@ -16,6 +17,7 @@ export function AspectBenchmark() {
   const [source, setSource] = useState('all')
   const [selectedProducts, setSelectedProducts] = useState([])
   const [selectedCountries, setSelectedCountries] = useState([])
+  const [selectedSources, setSelectedSources] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [payload, setPayload] = useState({
@@ -35,6 +37,7 @@ export function AspectBenchmark() {
   const productOptions = useMemo(() => payload.available_products || [], [payload.available_products])
   const countryOptions = useMemo(() => payload.available_countries || [], [payload.available_countries])
   const sourceOptions = useMemo(() => payload.available_sources || ['all'], [payload.available_sources])
+  const benchmarkSourceOptions = useMemo(() => sourceOptions.filter((option) => option !== 'all'), [sourceOptions])
 
   useEffect(() => {
     setSelectedProducts((current) => {
@@ -57,6 +60,16 @@ export function AspectBenchmark() {
   }, [countryOptions])
 
   useEffect(() => {
+    setSelectedSources((current) => {
+      const next = current.filter((item) => benchmarkSourceOptions.includes(item))
+      if (next.length === current.length && next.every((value, idx) => value === current[idx])) {
+        return current
+      }
+      return next
+    })
+  }, [benchmarkSourceOptions])
+
+  useEffect(() => {
     const load = async () => {
       const requestId = ++latestRequestId.current
       try {
@@ -66,7 +79,8 @@ export function AspectBenchmark() {
           scope,
           source,
           products: scope === 'product' ? selectedProducts : [],
-          countries: scope === 'country' ? selectedCountries : []
+          countries: scope === 'country' ? selectedCountries : [],
+          sources: scope === 'source' ? selectedSources : []
         })
         if (requestId !== latestRequestId.current) return
         setPayload(response?.data || {})
@@ -79,7 +93,7 @@ export function AspectBenchmark() {
       }
     }
     load()
-  }, [scope, source, selectedProducts, selectedCountries])
+  }, [scope, source, selectedProducts, selectedCountries, selectedSources])
 
   const toggleProduct = (value) => {
     setSelectedProducts((current) => {
@@ -92,6 +106,14 @@ export function AspectBenchmark() {
   const toggleCountry = (value) => {
     setSelectedCountries((current) => {
       if (current.includes(value)) return current.filter((c) => c !== value)
+      if (current.length >= 4) return current
+      return [...current, value]
+    })
+  }
+
+  const toggleSource = (value) => {
+    setSelectedSources((current) => {
+      if (current.includes(value)) return current.filter((item) => item !== value)
       if (current.length >= 4) return current
       return [...current, value]
     })
@@ -110,7 +132,9 @@ export function AspectBenchmark() {
         ? 'overall (all products and countries combined)'
         : scope === 'product'
         ? `product comparison: ${selectedProducts.join(', ')}`
-        : `country comparison: ${selectedCountries.join(', ')}`
+        : scope === 'country'
+        ? `country comparison: ${selectedCountries.join(', ')}`
+        : `source comparison: ${selectedSources.join(', ')}`
 
       // Format the benchmark data
       const aspects = payload.categories
@@ -153,7 +177,7 @@ Please explain in simple terms that focus on practical business insights.`
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Aspect Benchmark</h1>
         <p className="mt-2 text-slate-500">
-          Compare aspect-level positive sentiment scores overall, product-wise, or country-wise with source filtering.
+          Compare aspect-level positive sentiment scores overall, product-wise, country-wise, or source-wise.
         </p>
       </div>
 
@@ -166,7 +190,7 @@ Please explain in simple terms that focus on practical business insights.`
           <CardDescription>Score metric: positive sentiment percentage (0-100) per aspect.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className={`grid grid-cols-1 gap-3 ${scope === 'source' ? '' : 'md:grid-cols-2'}`}>
             <div className="space-y-1">
               <label className="text-sm font-semibold text-slate-700">Scope</label>
               <select
@@ -177,27 +201,32 @@ Please explain in simple terms that focus on practical business insights.`
                   setScope(nextScope)
                   if (nextScope !== 'product') setSelectedProducts([])
                   if (nextScope !== 'country') setSelectedCountries([])
+                  if (nextScope !== 'source') setSelectedSources([])
+                  if (nextScope === 'source') setSource('all')
                 }}
               >
                 <option value="overall">Overall</option>
                 <option value="product">Product-wise</option>
                 <option value="country">Country-wise</option>
+                <option value="source">Source-wise</option>
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-semibold text-slate-700">Source</label>
-              <select
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-              >
-                {sourceOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {scope !== 'source' && (
+              <div className="space-y-1">
+                <label className="text-sm font-semibold text-slate-700">Source</label>
+                <select
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800"
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                >
+                  {sourceOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           {scope === 'product' && (
@@ -245,6 +274,29 @@ Please explain in simple terms that focus on practical business insights.`
               </div>
             </div>
           )}
+
+          {scope === 'source' && (
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700">
+                Sources (select up to 4 for comparison)
+              </label>
+              <div className="max-h-40 overflow-y-auto rounded-xl border border-slate-200 p-3">
+                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                  {benchmarkSourceOptions.map((item) => (
+                    <label key={item} className="flex items-center gap-2 text-sm text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={selectedSources.includes(item)}
+                        onChange={() => toggleSource(item)}
+                        disabled={!selectedSources.includes(item) && selectedSources.length >= 4}
+                      />
+                      <span className="truncate" title={item}>{item}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -283,6 +335,10 @@ Please explain in simple terms that focus on practical business insights.`
             ) : scope === 'country' && selectedCountries.length === 0 ? (
               <div className="flex h-[320px] items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-sm text-slate-600">
                 Select one or more countries to render the country-wise benchmark chart.
+              </div>
+            ) : scope === 'source' && selectedSources.length === 0 ? (
+              <div className="flex h-[320px] items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-sm text-slate-600">
+                Select one or more sources to render the source-wise benchmark chart.
               </div>
             ) : (
               <div>
@@ -360,7 +416,7 @@ Please explain in simple terms that focus on practical business insights.`
                       </div>
                     ) : (
                       <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-slate-900 prose-p:text-slate-700 prose-p:leading-7 prose-strong:text-slate-900 prose-li:text-slate-700 prose-li:leading-7 prose-h1:text-base prose-h2:text-sm prose-h3:text-sm">
-                        <ReactMarkdown>{interpretation}</ReactMarkdown>
+                        <ReactMarkdown components={markdownComponents}>{enrichAgentText(interpretation)}</ReactMarkdown>
                       </div>
                     )}
                   </div>
@@ -373,5 +429,6 @@ Please explain in simple terms that focus on practical business insights.`
     </div>
   )
 }
+
 
 

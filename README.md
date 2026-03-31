@@ -141,11 +141,14 @@ Related files include `input/sentiment_enriched.xlsx`, which acts as the optiona
 
 ## How to Change the Dataset
 
-When you want to switch the application to a different review dataset, the first step is to prepare the new input file for the **Sentiment Analysis** page. The uploaded Excel file can include any number of business columns, but it must contain three required columns: `review_id`, `review_title`, and `review_text`. The `review_id` field is the unique row identifier used to merge the generated sentiment output back into the original table, `review_title` is the short review headline, and `review_text` is the main body of the review that the model reads to assign overall sentiment and aspect-level evidence.
+If the new dataset already uses the same required columns and the same saved output contract, nothing in the code needs to be changed. In that case, upload the new review file in **Sentiment Analysis**, generate a new enriched file, and replace `input/sentiment_enriched.xlsx`.
 
-After preparing the new review file, run sentiment analysis from the **Sentiment Analysis** page to generate a new enriched sentiment dataset. When that run is complete, save or download the resulting enriched file and place it in the `input` folder as `sentiment_enriched.xlsx`, replacing the current file at `input/sentiment_enriched.xlsx`. The dashboard, benchmark views, review explorer, summaries, and Ask Agent will then use this new sentiment dataset as their saved fallback input.
+If the new dataset does not follow the current schema, the following changes are needed:
 
-If summaries were previously generated for the older dataset, you should also clear the cached summary file at `input/product_summaries.json` before using the new data extensively. That file stores previously generated summary text for filters and groups, so keeping old cache entries can cause outdated summaries to appear even after the dataset changes. Clearing the file contents or deleting and recreating the file ensures that new summaries are generated from the new sentiment dataset instead of the old one.
+- The input review file used for sentiment analysis must provide `review_id`, `review_title`, and `review_text`. If your dataset uses different names, rename those columns before upload or update the input column selection in `backend/pipeline_sentiment.py`.
+- After generating the new enriched dataset, save or download it as `input/sentiment_enriched.xlsx` so the dashboard, benchmark views, review explorer, summaries, and Ask Agent use the new data as their saved fallback dataset.
+- Clear or regenerate `input/product_summaries.json` so cached summaries from the old dataset do not carry over.
+- If the enriched dataset itself uses different column names and you want Ask Agent to work with them, update the hardcoded field mappings in `backend/data_agent.py`.
 
 ## How to Run and Save Sentiment Analysis
 

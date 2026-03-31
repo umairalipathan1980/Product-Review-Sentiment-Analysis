@@ -76,12 +76,13 @@ def calculate_analytics(df: pd.DataFrame) -> dict:
     """
     sentiment_counts = df["overall_sentiment"].value_counts()
     total = len(df)
+    rating_series = pd.to_numeric(df.get("rating"), errors="coerce")
 
     return {
         # 1. Total reviews
         "total_reviews": total,
         # 2. Average rating
-        "avg_rating": float(df["rating"].mean()) if total > 0 else 0,
+        "avg_rating": float(rating_series.mean()) if total > 0 and rating_series.notna().any() else 0,
         # 3. Sentiment percentages
         "positive_percent": round(
             float((sentiment_counts.get("positive", 0) / total * 100) if total > 0 else 0), 1
@@ -121,6 +122,7 @@ def get_rating_trend(df: pd.DataFrame) -> list:
 
     df_copy = df.copy()
     df_copy["review_date"] = pd.to_datetime(df_copy["review_date"], errors="coerce")
+    df_copy["rating_num"] = pd.to_numeric(df_copy.get("rating"), errors="coerce")
     df_copy = df_copy.dropna(subset=["review_date"])
 
     if df_copy.empty:
@@ -129,8 +131,8 @@ def get_rating_trend(df: pd.DataFrame) -> list:
     trend = (
         df_copy.groupby(df_copy["review_date"].dt.date)
         .agg(
-            avg_rating=("rating", "mean"),
-            review_count=("rating", "size"),
+            avg_rating=("rating_num", "mean"),
+            review_count=("rating_num", "size"),
         )
         .reset_index()
     )
@@ -164,6 +166,7 @@ def get_sentiment_trend(df: pd.DataFrame) -> list:
 
     df_copy = df.copy()
     df_copy["review_date"] = pd.to_datetime(df_copy["review_date"], errors="coerce")
+    df_copy["rating_num"] = pd.to_numeric(df_copy.get("rating"), errors="coerce")
     df_copy = df_copy.dropna(subset=["review_date"])
 
     if df_copy.empty:
@@ -328,6 +331,7 @@ def get_aspect_benchmark(
     source: str = "all",
     products: list[str] | None = None,
     countries: list[str] | None = None,
+    sources: list[str] | None = None,
 ) -> dict:
     """
     Build aspect benchmark data for radar chart.
@@ -345,6 +349,7 @@ def get_aspect_benchmark(
     """
     products = products or []
     countries = countries or []
+    sources = sources or []
     source = source or "all"
 
     available_sources = sorted([str(v) for v in df.get("source", pd.Series(dtype=str)).dropna().unique().tolist()])
@@ -414,6 +419,23 @@ def get_aspect_benchmark(
         for country_name in selected_countries:
             country_rows = aspect_rows[aspect_rows["country"] == country_name]
             series.append(_aspect_score_series(country_rows, aspect_order, country_name))
+    elif scope == "source":
+        selected_sources = [s for s in sources if s in available_sources]
+        if not selected_sources:
+            return {
+                "categories": [],
+                "series": [],
+                "metric": "positive_percent",
+                "scope": scope,
+                "source": source,
+                "available_sources": ["all"] + available_sources,
+                "available_products": available_products,
+                "available_countries": available_countries,
+            }
+        series = []
+        for source_name in selected_sources:
+            source_rows = aspect_rows[aspect_rows["source"] == source_name]
+            series.append(_aspect_score_series(source_rows, aspect_order, source_name))
     else:
         series = [_aspect_score_series(aspect_rows, aspect_order, "Overall")]
 

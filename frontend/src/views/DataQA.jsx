@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { fetchAgentSchema, runAgentChatStream } from '../lib/api'
+import { enrichAgentText, markdownComponents } from '../lib/markdownHelpers'
 
 const TOOL_LABELS = {
   get_schema: 'Inspecting dataset schema',
@@ -214,7 +215,7 @@ export default function DataQA() {
                     <p className="whitespace-pre-wrap text-sm leading-7 text-black">{message.content}</p>
                   ) : (
                     <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-black prose-p:text-black prose-a:text-dashboard-copper prose-strong:text-black prose-code:text-dashboard-copper prose-pre:bg-slate-100 prose-li:text-black">
-                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                      <ReactMarkdown components={markdownComponents}>{enrichAgentText(message.content)}</ReactMarkdown>
                     </div>
                   )}
 

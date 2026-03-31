@@ -14,11 +14,13 @@ export async function runSentiment(payload) {
   return response.data
 }
 
-export async function runSentimentUpload({ unified_reviews, batch_size, max_reviews }) {
+export async function runSentimentUpload({ unified_reviews, batch_size, max_reviews, dataset_description, aspect_definitions }) {
   const formData = new FormData()
   formData.append('unified_reviews', unified_reviews)
   if (batch_size) formData.append('batch_size', String(batch_size))
   if (max_reviews) formData.append('max_reviews', String(max_reviews))
+  if (dataset_description) formData.append('dataset_description', dataset_description)
+  if (aspect_definitions) formData.append('aspect_definitions', JSON.stringify(aspect_definitions))
 
   const response = await api.post('/pipeline/sentiment/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
@@ -72,15 +74,17 @@ export async function fetchAnalyticsData(dimension = 'overall', value = null) {
   return response.data
 }
 
-export async function fetchAspectBenchmark({ scope = 'overall', source = 'all', products = [], countries = [] } = {}) {
+export async function fetchAspectBenchmark({ scope = 'overall', source = 'all', products = [], countries = [], sources = [] } = {}) {
   const safeProducts = Array.isArray(products) ? products : []
   const safeCountries = Array.isArray(countries) ? countries : []
+  const safeSources = Array.isArray(sources) ? sources : []
   const response = await api.get('/analytics/aspect-benchmark', {
     params: {
       scope,
       source,
       products_json: safeProducts.length ? JSON.stringify(safeProducts) : undefined,
-      countries_json: safeCountries.length ? JSON.stringify(safeCountries) : undefined
+      countries_json: safeCountries.length ? JSON.stringify(safeCountries) : undefined,
+      sources_json: safeSources.length ? JSON.stringify(safeSources) : undefined
     }
   })
   return response.data
