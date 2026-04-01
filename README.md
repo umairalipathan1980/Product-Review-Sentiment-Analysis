@@ -76,15 +76,16 @@ cd Product-Review-Sentiment-Analysis
 Create `backend/.env` from `backend/.env.example` if you want to run sentiment analysis.
 
 ```env
-# Azure OpenAI
+
+# OpenAI
+OPENAI_API_KEY=...
+OPENAI_MODEL=your-model-name (e.g., gpt-5.4)
+
+# Azure OpenAI (OPTIONAL. Only if you use Azure API)
 AZURE_API_KEY=...
 AZURE_ENDPOINT=https://your-resource.openai.azure.com/
 AZURE_API_VERSION=2025-03-01-preview
 AZURE_DEPLOYMENT=your-deployment-name
-
-# OpenAI (alternative)
-OPENAI_API_KEY=...
-OPENAI_MODEL=your-model-name
 ```
 
 Start the backend:
