@@ -2,6 +2,8 @@
 
 This tool turns raw product review data into a structured sentiment dataset that business teams can explore through interactive analytics, aspect benchmarking, row-level review inspection, and natural-language questioning. The workflow is designed for business users who need to move from raw reviews to actionable signals without building a separate reporting pipeline for every new question.
 
+![Application screenshot](frontend/public/image1.png)
+
 ## Overview
 
 This application lets teams upload review data, run GPT-based sentiment and aspect extraction, and analyze the enriched output in a Next.js dashboard.
@@ -28,6 +30,7 @@ Current workflow:
 - Explore the active dataset in **Analytics Dashboard**, **Aspect Benchmark**, **Review Explorer**, **Ask Agent**, and **Documentation**.
 
 If no current sentiment dataset is loaded and no fallback file exists at `input/sentiment_enriched.xlsx`, the analytics views and Ask Agent report that no input data is available.
+
 
 ## Project Structure
 
