@@ -31,6 +31,7 @@ Current workflow:
 
 If no current sentiment dataset is loaded and no fallback file exists at `input/sentiment_enriched.xlsx`, the analytics views and Ask Agent report that no input data is available.
 
+![Dashboard screenshot](frontend/public/image2.png)
 
 ## Project Structure
 
