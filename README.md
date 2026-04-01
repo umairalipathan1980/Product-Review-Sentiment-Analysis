@@ -1,4 +1,6 @@
-﻿# Product Review Sentiment Analysis Dashboard
+﻿> **📖 Read More:** For a detailed explanation of the design, architecture, and development process behind this tool, check out the companion article published in [**Level Up Coding**](https://levelup.gitconnected.com/i-built-a-product-review-intelligence-tool-powered-by-an-ai-agent-368b1c83224d?sk=22eef29af1cc45f0cd4231c81d2ba23c).
+
+# Product Review Sentiment Analysis Dashboard
 
 This tool turns raw product review data into a structured sentiment dataset that business teams can explore through interactive analytics, aspect benchmarking, row-level review inspection, and natural-language questioning. The workflow is designed for business users who need to move from raw reviews to actionable signals without building a separate reporting pipeline for every new question.
 
